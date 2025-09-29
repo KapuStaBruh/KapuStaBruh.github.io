@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Своя игра</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #044A36; /* Pine - более темный зеленый */
+            min-height: 100vh;
+            padding: 20px;
+            color: #0A1001; /* Rich Black */
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: #F2F3F4; /* Anti-Flash White */
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #044A36; /* Pine */
+            font-weight: bold;
+        }
+
+        .editor-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .editor-table td {
+            padding: 10px;
+            border: 1px solid #7C908B; /* Stone */
+            vertical-align: top;
+        }
+
+        .editor-header {
+            background: #1E5634; /* Basil - более мягкий темно-зеленый */
+            color: #F2F3F4; /* Anti-Flash White */
+            text-align: center;
+            font-weight: bold;
+            padding: 15px;
+        }
+
+        .topic-cell {
+            background: #2F6E45; /* Forest - мягкий зеленый */
+            color: #F2F3F4; /* Anti-Flash White */
+            text-align: center;
+            font-weight: bold;
+            width: 150px;
+        }
+
+        .topic-input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.9);
+            color: #044A36; /* Pine */
+        }
+
+        .question-input, .answer-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #7C908B; /* Stone */
+            border-radius: 4px;
+            margin-bottom: 5px;
+            background: white;
+            color: #0A1001; /* Rich Black */
+        }
+
+        .question-input {
+            height: 60px;
+            resize: vertical;
+        }
+
+        .points-input {
+            width: 80px;
+            padding: 5px;
+            border: 1px solid #7C908B; /* Stone */
+            border-radius: 4px;
+            text-align: center;
+            background: white;
+            color: #0A1001; /* Rich Black */
+            font-weight: bold;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: #2F6E45; /* Forest */
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4FAF5C; /* Frog - более мягкий зеленый */
+        }
+
+        .btn-danger {
+            background: #044A36; /* Pine */
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #1E5634; /* Basil */
+        }
+
+        .btn-secondary {
+            background: #7C908B; /* Stone */
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #A5D6B0; /* Pistachio */
+            color: #0A1001;
+        }
+
+        .btn-dark {
+            background: #1E5634; /* Basil */
+            color: white;
+        }
+
+        .btn-dark:hover {
+            background: #2F6E45; /* Forest */
+        }
+
+        .game-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 8px;
+            margin: 20px 0;
+        }
+
+        .category-header {
+            background: #1E5634; /* Basil */
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 8px;
+            min-width: 150px;
+            font-size: 18px;
+        }
+
+        .question-cell {
+            background: #2F6E45; /* Forest */
+            color: #F2F3F4; /* Белый вместо желтого */
+            padding: 30px 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-cell:hover {
+            background: #4FAF5C; /* Frog */
+            color: #044A36; /* Pine */
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .question-cell.used {
+            background: #7C908B; /* Stone */
+            color: #A5D6B0; /* Pistachio */
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .timer {
+            font-size: 24px;
+            font-weight: bold;
+            background: #044A36; /* Pine */
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .score-board {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .team-score {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+            border: 2px solid #7C908B; /* Stone */
+        }
+
+        .team-score input {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            border: 2px solid #A5D6B0; /* Pistachio */
+            border-radius: 5px;
+            width: 100%;
+            padding: 10px;
+            color: #044A36; /* Pine */
+            background: #F2F3F4; /* Anti-Flash White */
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(4, 74, 54, 0.95); /* Pine с прозрачностью */
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #F2F3F4; /* Anti-Flash White */
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 90%;
+            color: #0A1001; /* Rich Black */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .question-display {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #044A36; /* Pine */
+            font-weight: bold;
+            line-height: 1.4;
+        }
+
+        .answer-display {
+            font-size: 20px;
+            color: #1E5634; /* Basil */
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+            font-weight: bold;
+            padding: 15px;
+            background: #A5D6B0; /* Pistachio */
+            border-radius: 6px;
+            border-left: 4px solid #4FAF5C; /* Frog */
+        }
+
+        .points-badge {
+            background: #4FAF5C; /* Frog */
+            color: #044A36; /* Pine */
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 18px;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .save-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #2F6E45; /* Forest */
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            display: none;
+            z-index: 1001;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Адаптивность для мобильных устройств */
+        @media (max-width: 768px) {
+            .game-table {
+                border-spacing: 4px;
+            }
+            
+            .question-cell {
+                padding: 15px 8px;
+                font-size: 18px;
+            }
+            
+            .category-header {
+                padding: 12px 8px;
+                font-size: 14px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .score-board {
+                flex-direction: column;
+            }
+            
+            .game-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="save-notification" id="saveNotification">✅ Данные сохранены!</div>
+
+    <div class="container">
+        <!-- Редактор -->
+        <div class="panel" id="editorPanel">
+            <h2>🎮 Своя игра - Редактор</h2>
+            <table class="editor-table">
+                <tr>
+                    <td class="editor-header">Темы / Баллы</td>
+                    <td class="editor-header">
+                        <input type="number" class="points-input" id="points0" value="100" min="1">
+                    </td>
+                    <td class="editor-header">
+                        <input type="number" class="points-input" id="points1" value="200" min="1">
+                    </td>
+                    <td class="editor-header">
+                        <input type="number" class="points-input" id="points2" value="300" min="1">
+                    </td>
+                    <td class="editor-header">
+                        <input type="number" class="points-input" id="points3" value="400" min="1">
+                    </td>
+                    <td class="editor-header">
+                        <input type="number" class="points-input" id="points4" value="500" min="1">
+                    </td>
+                </tr>
+                
+                <!-- Тема 1 -->
+                <tr>
+                    <td class="topic-cell">
+                        <input type="text" class="topic-input" id="topic0" value="История">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q0_0">Какой год основания Руси?</textarea>
+                        <input type="text" class="answer-input" id="a0_0" value="882 год">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q0_1">Первый русский царь?</textarea>
+                        <input type="text" class="answer-input" id="a0_1" value="Иван Грозный">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q0_2">Год Куликовской битвы?</textarea>
+                        <input type="text" class="answer-input" id="a0_2" value="1380 год">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q0_3">Первый император России?</textarea>
+                        <input type="text" class="answer-input" id="a0_3" value="Пётр I">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q0_4">Год отмены крепостного права?</textarea>
+                        <input type="text" class="answer-input" id="a0_4" value="1861 год">
+                    </td>
+                </tr>
+                
+                <!-- Тема 2 -->
+                <tr>
+                    <td class="topic-cell">
+                        <input type="text" class="topic-input" id="topic1" value="Наука">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q1_0">Сколько планет в Солнечной системе?</textarea>
+                        <input type="text" class="answer-input" id="a1_0" value="8">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q1_1">Самый большой орган человека?</textarea>
+                        <input type="text" class="answer-input" id="a1_1" value="Кожа">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q1_2">Самая большая кость в теле?</textarea>
+                        <input type="text" class="answer-input" id="a1_2" value="Бедренная">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q1_3">Кто открыл гравитацию?</textarea>
+                        <input type="text" class="answer-input" id="a1_3" value="Ньютон">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q1_4">Химический элемент Au?</textarea>
+                        <input type="text" class="answer-input" id="a1_4" value="Золото">
+                    </td>
+                </tr>
+                
+                <!-- Тема 3 -->
+                <tr>
+                    <td class="topic-cell">
+                        <input type="text" class="topic-input" id="topic2" value="Искусство">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q2_0">Автор "Чёрного квадрата"?</textarea>
+                        <input type="text" class="answer-input" id="a2_0" value="Малевич">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q2_1">Композитор "Лунной сонаты"?</textarea>
+                        <input type="text" class="answer-input" id="a2_1" value="Бетховен">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q2_2">Город музея Лувр?</textarea>
+                        <input type="text" class="answer-input" id="a2_2" value="Париж">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q2_3">Автор "Войны и мира"?</textarea>
+                        <input type="text" class="answer-input" id="a2_3" value="Толстой">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q2_4">Художник, отрезавший ухо?</textarea>
+                        <input type="text" class="answer-input" id="a2_4" value="Ван Гог">
+                    </td>
+                </tr>
+                
+                <!-- Тема 4 -->
+                <tr>
+                    <td class="topic-cell">
+                        <input type="text" class="topic-input" id="topic3" value="Спорт">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q3_0">Игроков в футбольной команде?</textarea>
+                        <input type="text" class="answer-input" id="a3_0" value="11">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q3_1">Спорт с шайбой?</textarea>
+                        <input type="text" class="answer-input" id="a3_1" value="Хоккей">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q3_2">Колец на олимпийском флаге?</textarea>
+                        <input type="text" class="answer-input" id="a3_2" value="5">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q3_3">Лучший теннисист по шлемам?</textarea>
+                        <input type="text" class="answer-input" id="a3_3" value="Джокович">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q3_4">Год Олимпиады в Москве?</textarea>
+                        <input type="text" class="answer-input" id="a3_4" value="1980">
+                    </td>
+                </tr>
+                
+                <!-- Тема 5 -->
+                <tr>
+                    <td class="topic-cell">
+                        <input type="text" class="topic-input" id="topic4" value="География">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q4_0">Самая длинная река?</textarea>
+                        <input type="text" class="answer-input" id="a4_0" value="Нил">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q4_1">Столица Австралии?</textarea>
+                        <input type="text" class="answer-input" id="a4_1" value="Канберра">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q4_2">Самая большая пустыня?</textarea>
+                        <input type="text" class="answer-input" id="a4_2" value="Сахара">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q4_3">Часовых поясов в России?</textarea>
+                        <input type="text" class="answer-input" id="a4_3" value="11">
+                    </td>
+                    <td>
+                        <textarea class="question-input" id="q4_4">Самое глубокое озеро?</textarea>
+                        <input type="text" class="answer-input" id="a4_4" value="Байкал">
+                    </td>
+                </tr>
+            </table>
+            
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="startGame()">🚀 Начать игру</button>
+                <button class="btn btn-danger" onclick="resetGame()">🔄 Сбросить всё</button>
+                <button class="btn btn-secondary" onclick="loadSampleData()">📝 Пример вопросов</button>
+            </div>
+        </div>
+
+        <!-- Игровое поле -->
+        <div class="panel" id="gameBoard" style="display: none;">
+            <div class="game-header">
+                <button class="btn btn-dark" onclick="backToEditor()">✏️ Редактор</button>
+                <div class="timer" id="timer">30</div>
+            </div>
+
+            <div class="score-board">
+                <div class="team-score">
+                    <div>Команда 1</div>
+                    <input type="number" id="score1" value="0" min="0">
+                </div>
+                <div class="team-score">
+                    <div>Команда 2</div>
+                    <input type="number" id="score2" value="0" min="0">
+                </div>
+                <div class="team-score">
+                    <div>Команда 3</div>
+                    <input type="number" id="score3" value="0" min="0">
+                </div>
+            </div>
+
+            <table class="game-table" id="gameTable">
+                <!-- Заполнится автоматически -->
+            </table>
+        </div>
+
+        <!-- Модальное окно -->
+        <div class="modal" id="questionModal">
+            <div class="modal-content">
+                <div class="question-display" id="modalQuestion"></div>
+                <div class="answer-display" id="modalAnswer"></div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="showAnswer()">📢 Показать ответ</button>
+                    <button class="btn btn-danger" onclick="closeQuestion()">❌ Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Простые переменные
+        let usedQuestions = new Set();
+        let timerInterval = null;
+
+        // Функция сохранения данных
+        function saveGameData() {
+            const gameData = {
+                points: [],
+                topics: [],
+                questions: {},
+                scores: {
+                    score1: document.getElementById('score1').value,
+                    score2: document.getElementById('score2').value,
+                    score3: document.getElementById('score3').value
+                },
+                usedQuestions: Array.from(usedQuestions)
+            };
+
+            // Сохраняем баллы
+            for (let i = 0; i < 5; i++) {
+                gameData.points.push(document.getElementById('points' + i).value);
+            }
+
+            // Сохраняем темы
+            for (let i = 0; i < 5; i++) {
+                gameData.topics.push(document.getElementById('topic' + i).value);
+            }
+
+            // Сохраняем вопросы и ответы
+            for (let topicIndex = 0; topicIndex < 5; topicIndex++) {
+                for (let pointsIndex = 0; pointsIndex < 5; pointsIndex++) {
+                    const questionId = topicIndex + '_' + pointsIndex;
+                    gameData.questions[questionId] = {
+                        question: document.getElementById('q' + questionId).value,
+                        answer: document.getElementById('a' + questionId).value
+                    };
+                }
+            }
+
+            // Сохраняем в localStorage
+            localStorage.setItem('svoyaIgraData', JSON.stringify(gameData));
+            
+            // Показываем уведомление
+            showSaveNotification();
+        }
+
+        // Функция загрузки данных
+        function loadGameData() {
+            const savedData = localStorage.getItem('svoyaIgraData');
+            if (savedData) {
+                const gameData = JSON.parse(savedData);
+                
+                // Загружаем баллы
+                if (gameData.points) {
+                    for (let i = 0; i < 5; i++) {
+                        if (document.getElementById('points' + i)) {
+                            document.getElementById('points' + i).value = gameData.points[i] || (i + 1) * 100;
+                        }
+                    }
+                }
+
+                // Загружаем темы
+                if (gameData.topics) {
+                    for (let i = 0; i < 5; i++) {
+                        if (document.getElementById('topic' + i)) {
+                            document.getElementById('topic' + i).value = gameData.topics[i] || 'Тема ' + (i + 1);
+                        }
+                    }
+                }
+
+                // Загружаем вопросы и ответы
+                if (gameData.questions) {
+                    for (let topicIndex = 0; topicIndex < 5; topicIndex++) {
+                        for (let pointsIndex = 0; pointsIndex < 5; pointsIndex++) {
+                            const questionId = topicIndex + '_' + pointsIndex;
+                            if (gameData.questions[questionId]) {
+                                if (document.getElementById('q' + questionId)) {
+                                    document.getElementById('q' + questionId).value = gameData.questions[questionId].question;
+                                }
+                                if (document.getElementById('a' + questionId)) {
+                                    document.getElementById('a' + questionId).value = gameData.questions[questionId].answer;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Загружаем счёт
+                if (gameData.scores) {
+                    document.getElementById('score1').value = gameData.scores.score1 || 0;
+                    document.getElementById('score2').value = gameData.scores.score2 || 0;
+                    document.getElementById('score3').value = gameData.scores.score3 || 0;
+                }
+
+                // Загружаем использованные вопросы
+                if (gameData.usedQuestions) {
+                    usedQuestions = new Set(gameData.usedQuestions);
+                }
+            }
+        }
+
+        // Функция показа уведомления о сохранении
+        function showSaveNotification() {
+            const notification = document.getElementById('saveNotification');
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
+
+        // Автосохранение при изменении полей
+        function setupAutoSave() {
+            const inputs = document.querySelectorAll('input, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('input', saveGameData);
+            });
+        }
+
+        // Основные функции игры
+        function startGame() {
+            saveGameData(); // Сохраняем перед началом игры
+            document.getElementById('editorPanel').style.display = 'none';
+            document.getElementById('gameBoard').style.display = 'block';
+            createGameBoard();
+        }
+
+        function backToEditor() {
+            saveGameData(); // Сохраняем при возврате в редактор
+            document.getElementById('gameBoard').style.display = 'none';
+            document.getElementById('editorPanel').style.display = 'block';
+            stopTimer();
+        }
+
+        function createGameBoard() {
+            const table = document.getElementById('gameTable');
+            table.innerHTML = '';
+
+            // Заголовок с баллами
+            const headerRow = document.createElement('tr');
+            headerRow.appendChild(createHeaderCell(''));
+            for (let i = 0; i < 5; i++) {
+                const points = document.getElementById('points' + i).value;
+                headerRow.appendChild(createHeaderCell(points));
+            }
+            table.appendChild(headerRow);
+
+            // Строки с темами и вопросами
+            for (let topicIndex = 0; topicIndex < 5; topicIndex++) {
+                const row = document.createElement('tr');
+                const topicName = document.getElementById('topic' + topicIndex).value;
+                row.appendChild(createHeaderCell(topicName));
+
+                for (let pointsIndex = 0; pointsIndex < 5; pointsIndex++) {
+                    const questionId = topicIndex + '_' + pointsIndex;
+                    const points = document.getElementById('points' + pointsIndex).value;
+                    const cell = createQuestionCell(points, questionId);
+                    row.appendChild(cell);
+                }
+                table.appendChild(row);
+            }
+        }
+
+        function createHeaderCell(text) {
+            const cell = document.createElement('td');
+            cell.className = 'category-header';
+            cell.textContent = text;
+            return cell;
+        }
+
+        function createQuestionCell(points, questionId) {
+            const cell = document.createElement('td');
+            cell.className = usedQuestions.has(questionId) ? 'question-cell used' : 'question-cell';
+            cell.textContent = points;
+            cell.onclick = function() {
+                if (!usedQuestions.has(questionId)) {
+                    openQuestion(questionId);
+                }
+            };
+            return cell;
+        }
+
+        function openQuestion(questionId) {
+            usedQuestions.add(questionId);
+            saveGameData(); // Сохраняем при открытии вопроса
+            
+            const [topicIndex, pointsIndex] = questionId.split('_');
+            const question = document.getElementById('q' + questionId).value;
+            const answer = document.getElementById('a' + questionId).value;
+            const points = document.getElementById('points' + pointsIndex).value;
+            const topic = document.getElementById('topic' + topicIndex).value;
+
+            document.getElementById('modalQuestion').innerHTML = 
+                topic + ': ' + question + ' <span class="points-badge">' + points + '</span>';
+            document.getElementById('modalAnswer').textContent = answer;
+            document.getElementById('modalAnswer').style.display = 'none';
+            document.getElementById('questionModal').style.display = 'block';
+
+            startTimer(30);
+        }
+
+        function startTimer(seconds) {
+            const timer = document.getElementById('timer');
+            let timeLeft = seconds;
+            
+            timerInterval = setInterval(function() {
+                timeLeft--;
+                timer.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    stopTimer();
+                    showAnswer();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function showAnswer() {
+            document.getElementById('modalAnswer').style.display = 'block';
+        }
+
+        function closeQuestion() {
+            document.getElementById('questionModal').style.display = 'none';
+            createGameBoard();
+            stopTimer();
+        }
+
+        function resetGame() {
+            if (confirm('Вы уверены? Это удалит все ваши вопросы и настройки!')) {
+                usedQuestions.clear();
+                
+                // Сброс счетов
+                document.getElementById('score1').value = 0;
+                document.getElementById('score2').value = 0;
+                document.getElementById('score3').value = 0;
+                
+                // Сброс баллов
+                for (let i = 0; i < 5; i++) {
+                    document.getElementById('points' + i).value = (i + 1) * 100;
+                }
+                
+                // Сброс тем
+                const topics = ['История', 'Наука', 'Искусство', 'Спорт', 'География'];
+                for (let i = 0; i < 5; i++) {
+                    document.getElementById('topic' + i).value = topics[i];
+                }
+                
+                // Сброс вопросов и ответов
+                const questions = document.querySelectorAll('.question-input, .answer-input');
+                questions.forEach(input => input.value = '');
+                
+                // Удаляем сохраненные данные
+                localStorage.removeItem('svoyaIgraData');
+                
+                alert('Все данные сброшены!');
+            }
+        }
+
+        function loadSampleData() {
+            // Уже заполнено примерами по умолчанию
+            alert('Примеры вопросов уже загружены! Измените их под себя и они сохранятся автоматически.');
+        }
+
+        // Закрытие модального окна по клику вне его
+        document.getElementById('questionModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeQuestion();
+            }
+        });
+
+        // Инициализация при загрузке страницы
+        window.addEventListener('load', function() {
+            loadGameData(); // Загружаем сохраненные данные
+            setupAutoSave(); // Настраиваем автосохранение
+        });
+
+        // Сохраняем при закрытии страницы
+        window.addEventListener('beforeunload', saveGameData);
+    </script>
+</body>
+</html>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест по IT</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
+        body{background:#0a0a0a;color:#fff;min-height:100vh;padding:20px}
+        .container{max-width:600px;margin:0 auto}
+        .header{text-align:center;margin-bottom:30px}
+        .back-btn{color:#2563eb;text-decoration:none;margin-bottom:20px;display:inline-block}
+        .back-btn:hover{color:#1d4ed8}
+        h1{font-size:2rem;margin-bottom:10px}
+        .progress-info{display:flex;justify-content:space-between;margin-bottom:10px;color:#94a3b8}
+        .progress{background:#1a1a1a;height:8px;border-radius:4px;margin-bottom:30px;overflow:hidden}
+        .progress-bar{background:#2563eb;height:100%;transition:width 0.3s}
+        .question-card{background:#1a1a1a;padding:25px;border-radius:8px;border:1px solid #334155;margin-bottom:20px}
+        .question-text{font-size:1.2rem;margin-bottom:20px}
+        .options{display:grid;gap:12px}
+        .option{background:#2a2a2a;padding:15px;border-radius:6px;cursor:pointer;transition:all 0.2s;border:1px solid #334155}
+        .option:hover{background:#334155}
+        .option.selected{background:#2563eb;border-color:#2563eb}
+        .nav-buttons{display:flex;justify-content:space-between;margin-top:30px}
+        .btn{background:#2563eb;color:#fff;border:none;padding:12px 25px;border-radius:6px;cursor:pointer;transition:background 0.2s}
+        .btn:hover{background:#1d4ed8}
+        .btn:disabled{background:#334155;cursor:not-allowed;color:#666}
+        .btn.finish{background:#10b981}
+        .btn.finish:hover{background:#059669}
+        .btn.finish:disabled{background:#334155}
+        .result-card{background:#1a1a1a;padding:30px;border-radius:8px;border:1px solid #334155;text-align:center}
+        .score{font-size:2rem;color:#2563eb;margin:20px 0}
+        .restart-btn{margin-top:20px}
+        .hidden{display:none}
+        .warning{color:#f59e0b;text-align:center;margin-top:10px}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-btn">← Назад к сайту</a>
+        
+        <div class="header">
+            <h1>Тест по IT</h1>
+            <div class="progress-info">
+                <span id="progressText">Вопрос 1 из 15</span>
+                <span id="answeredText">Отвечено: 0/15</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div id="quizContainer">
+            <div class="question-card">
+                <div class="question-text" id="questionText"></div>
+                <div class="options" id="optionsContainer"></div>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="btn" id="prevBtn" disabled>Назад</button>
+                <button class="btn" id="nextBtn">Далее</button>
+                <button class="btn finish" id="finishBtn" disabled>Завершить тест</button>
+            </div>
+            <div class="warning" id="warningText"></div>
+        </div>
+
+        <div id="resultContainer" class="hidden">
+            <div class="result-card">
+                <h2>Результаты теста</h2>
+                <div class="score" id="scoreText"></div>
+                <p id="resultMessage"></p>
+                <button class="btn restart-btn" onclick="restartTest()">Пройти заново</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Что такое HTML?",
+                options: [
+                    "Язык программирования",
+                    "Язык разметки гипертекста", 
+                    "База данных",
+                    "Фреймворк для стилей"
+                ],
+                correct: 1
+            },
+            {
+                question: "Какой протокол используется для безопасного соединения?",
+                options: [
+                    "HTTP",
+                    "FTP",
+                    "HTTPS",
+                    "SMTP"
+                ],
+                correct: 2
+            },
+            {
+                question: "Что означает CSS?",
+                options: [
+                    "Computer Style Sheets",
+                    "Creative Style System",
+                    "Cascading Style Sheets",
+                    "Colorful Style Sheets"
+                ],
+                correct: 2
+            },
+            {
+                question: "Какой язык программирования используется для веб-серверов?",
+                options: [
+                    "JavaScript",
+                    "Python",
+                    "Java",
+                    "Все вышеперечисленные"
+                ],
+                correct: 3
+            },
+            {
+                question: "Что такое API?",
+                options: [
+                    "Автоматическая программа интерфейса",
+                    "Интерфейс программирования приложений",
+                    "Протокол передачи данных",
+                    "Язык запросов"
+                ],
+                correct: 1
+            },
+            {
+                question: "Какой тег используется для создания ссылки в HTML?",
+                options: [
+                    "<link>",
+                    "<a>",
+                    "<href>",
+                    "<url>"
+                ],
+                correct: 1
+            },
+            {
+                question: "Что такое Git?",
+                options: [
+                    "Язык программирования",
+                    "Система контроля версий",
+                    "Текстовый редактор",
+                    "Операционная система"
+                ],
+                correct: 1
+            },
+            {
+                question: "Какой оператор используется для сравнения по значению и типу в JavaScript?",
+                options: [
+                    "==",
+                    "===",
+                    "=",
+                    "!="
+                ],
+                correct: 1
+            },
+            {
+                question: "Что такое SQL?",
+                options: [
+                    "Simple Query Language",
+                    "Structured Query Language", 
+                    "System Query Logic",
+                    "Server Quality Language"
+                ],
+                correct: 1
+            },
+            {
+                question: "Какой метод HTTP используется для получения данных?",
+                options: [
+                    "POST",
+                    "GET",
+                    "PUT",
+                    "DELETE"
+                ],
+                correct: 1
+            },
+            {
+                question: "Что такое DNS?",
+                options: [
+                    "Database Network System",
+                    "Domain Name System",
+                    "Digital Naming Service",
+                    "Data Navigation System"
+                ],
+                correct: 1
+            },
+            {
+                question: "Какой тип данных не существует в JavaScript?",
+                options: [
+                    "string",
+                    "boolean", 
+                    "integer",
+                    "number"
+                ],
+                correct: 2
+            },
+            {
+                question: "Что такое responsive design?",
+                options: [
+                    "Дизайн для мобильных устройств",
+                    "Адаптивный дизайн под разные экраны",
+                    "Быстрый дизайн",
+                    "Интерактивный дизайн"
+                ],
+                correct: 1
+            },
+            {
+                question: "Какой язык используется для стилизации веб-страниц?",
+                options: [
+                    "HTML",
+                    "JavaScript",
+                    "CSS",
+                    "Python"
+                ],
+                correct: 2
+            },
+            {
+                question: "Что такое AJAX?",
+                options: [
+                    "Новый язык программирования",
+                    "Технология асинхронного обмена данными",
+                    "Фреймворк для JavaScript",
+                    "База данных"
+                ],
+                correct: 1
+            }
+        ];
+
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let shuffledQuestions = [];
+
+        function shuffleQuestions() {
+            shuffledQuestions = [...questions];
+            for (let i = shuffledQuestions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledQuestions[i], shuffledQuestions[j]] = [shuffledQuestions[j], shuffledQuestions[i]];
+            }
+        }
+
+        function initTest() {
+            shuffleQuestions();
+            userAnswers = new Array(shuffledQuestions.length).fill(null);
+            showQuestion();
+            updateProgress();
+            updateFinishButton();
+        }
+
+        function showQuestion() {
+            const question = shuffledQuestions[currentQuestion];
+            document.getElementById('questionText').textContent = `${currentQuestion + 1}. ${question.question}`;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = `option ${userAnswers[currentQuestion] === index ? 'selected' : ''}`;
+                optionElement.textContent = option;
+                optionElement.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            document.getElementById('prevBtn').disabled = currentQuestion === 0;
+            document.getElementById('nextBtn').textContent = currentQuestion === shuffledQuestions.length - 1 ? 'Далее' : 'Далее';
+            updateProgress();
+            updateFinishButton();
+        }
+
+        function selectOption(optionIndex) {
+            userAnswers[currentQuestion] = optionIndex;
+            showQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < shuffledQuestions.length - 1) {
+                currentQuestion++;
+                showQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / shuffledQuestions.length) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `Вопрос ${currentQuestion + 1} из ${shuffledQuestions.length}`;
+            
+            const answeredCount = userAnswers.filter(answer => answer !== null).length;
+            document.getElementById('answeredText').textContent = `Отвечено: ${answeredCount}/${shuffledQuestions.length}`;
+        }
+
+        function updateFinishButton() {
+            const answeredCount = userAnswers.filter(answer => answer !== null).length;
+            const finishBtn = document.getElementById('finishBtn');
+            const warningText = document.getElementById('warningText');
+            
+            if (answeredCount === shuffledQuestions.length) {
+                finishBtn.disabled = false;
+                warningText.textContent = '';
+            } else {
+                finishBtn.disabled = true;
+                warningText.textContent = `Для завершения теста ответьте на все вопросы. Осталось: ${shuffledQuestions.length - answeredCount}`;
+            }
+        }
+
+        function finishTest() {
+            const answeredCount = userAnswers.filter(answer => answer !== null).length;
+            
+            if (answeredCount < shuffledQuestions.length) {
+                document.getElementById('warningText').textContent = 'Пожалуйста, ответьте на все вопросы перед завершением теста!';
+                return;
+            }
+            
+            showResults();
+        }
+
+        function showResults() {
+            let correctAnswers = 0;
+            shuffledQuestions.forEach((question, index) => {
+                if (userAnswers[index] === question.correct) {
+                    correctAnswers++;
+                }
+            });
+            
+            const score = Math.round((correctAnswers / shuffledQuestions.length) * 100);
+            document.getElementById('scoreText').textContent = `${score}%`;
+            
+            let message = `Правильных ответов: ${correctAnswers} из ${shuffledQuestions.length}\n`;
+            if (score >= 90) message += "Отличный результат!";
+            else if (score >= 70) message += "Хороший результат!";
+            else if (score >= 50) message += "Удовлетворительно";
+            else message += "Нужно подтянуть знания";
+            
+            document.getElementById('resultMessage').textContent = message;
+            
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('resultContainer').classList.remove('hidden');
+        }
+
+        function restartTest() {
+            currentQuestion = 0;
+            userAnswers = [];
+            document.getElementById('quizContainer').classList.remove('hidden');
+            document.getElementById('resultContainer').classList.add('hidden');
+            initTest();
+        }
+
+        // Инициализация
+        document.getElementById('prevBtn').onclick = prevQuestion;
+        document.getElementById('nextBtn').onclick = nextQuestion;
+        document.getElementById('finishBtn').onclick = finishTest;
+        initTest();
+    </script>
+</body>
+</html>
